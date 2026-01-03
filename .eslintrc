@@ -1,12 +1,11 @@
 {
     "extends": [
-        "airbnb",
         "prettier"
     ],
     "globals": {
         "d3": true
     },
-    "plugins": ["jest", "prettier"],
+    "plugins": ["jest", "prettier", "import"],
     "env": {
         "browser": true,
         "jest/globals": true

@@ -6,11 +6,16 @@ module.exports = {
         demo: ['./demo/demo.css', './demo/demo.js'],
     },
     mode: 'development',
+    devtool: 'inline-cheap-module-source-map',
     output: {
         filename: '[name].js',
         path: path.resolve(__dirname, 'demo/dist'),
         library: 'eventDrops',
         libraryTarget: 'umd',
+    },
+    devServer: {
+        host: 'localhost',
+        open: true,
     },
     module: {
         rules: [

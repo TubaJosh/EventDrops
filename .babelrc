@@ -1,16 +1,19 @@
 {
     "env": {
         "test": {
-            "presets": ["es2015", "stage-0"],
-            "plugins": [
-                ["transform-require-ignore", {
-                    "extensions": [".css"]
+            "presets": [
+                ["@babel/preset-env", {
+                    "targets": {
+                        "node": "current"
+                    },
+                    "modules": "commonjs"
                 }]
             ]
         }
     },
     "presets": [
-        ["es2015", { "modules": false }],
-        "stage-0"
+        ["@babel/preset-env", {
+            "modules": false
+        }]
     ]
 }
