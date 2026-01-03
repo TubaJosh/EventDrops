@@ -14,7 +14,8 @@ module.exports = {
         libraryTarget: 'umd',
     },
     devServer: {
-        host: 'localhost',
+        host: '0.0.0.0',
+        port: 8080,
         open: true,
     },
     module: {
