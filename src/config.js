@@ -1,10 +1,17 @@
 import enLocale from 'd3-time-format/locale/en-US.json';
 
-export default d3 => ({
+export default d3 => {
+    
+    return {
+    d3,
     locale: enLocale,
     metaballs: {
         blurDeviation: 10,
         colorMatrix: '1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 50 -10',
+    },
+    heatmap: {
+        colorScale: null, // null means use line color with opacity
+        maxIntensity: null, // null means auto-calculate from data
     },
     bound: {
         format: d3.timeFormat('%d %B %Y'),
@@ -19,6 +26,8 @@ export default d3 => ({
             weeks: '%b %d',
             months: '%B',
             year: '%Y',
+            decades: '%Y',
+            millennium: '%Y',
         },
         verticalGrid: false,
         tickPadding: 6,
@@ -78,4 +87,9 @@ export default d3 => ({
         large: 992,
         extra: 1200,
     },
-});
+    bucketSize: {
+        minWidth: 10, 
+        maxWidth: 180,
+    },
+    };
+};

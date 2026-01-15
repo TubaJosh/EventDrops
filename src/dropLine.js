@@ -1,8 +1,11 @@
 import drop from './drop';
 import indicator from './indicator';
+import heatmap from './heatmap';
+import { shouldUseHeatmap } from './timeScale';
 
-export default (config, xScale) => selection => {
+export default (config, xScale, breakpointLabel) => selection => {
     const {
+        d3,
         metaballs,
         label: {
             text: labelText,
@@ -14,7 +17,12 @@ export default (config, xScale) => selection => {
         },
         line: { color: lineColor, height: lineHeight },
         indicator: indicatorEnabled,
+        numberDisplayedTicks,
+        bucketSize,
     } = config;
+
+    const useHeatmap = shouldUseHeatmap(d3, xScale, numberDisplayedTicks, breakpointLabel, bucketSize);
+    const renderComponent = useHeatmap ? heatmap : drop;
 
     const lines = selection.selectAll('.drop-line').data(d => d);
 
@@ -36,8 +44,23 @@ export default (config, xScale) => selection => {
     const drops = g
         .append('g')
         .classed('drops', true)
+        .classed('heatmap-container', useHeatmap)
         .attr('transform', () => `translate(${labelWidth}, ${lineHeight / 2})`)
-        .call(drop(config, xScale));
+        .each(function(d, i) {
+            // Get parent row data and store row index in datum for heatmap to access
+            const parentData = d3.select(this.parentNode).datum();
+            d3.select(this).datum({ ...parentData, _rowIndex: i });
+        });
+    
+    // Clean up any existing elements from the opposite component (for new lines)
+    // Existing lines are handled in the update section below
+    if (useHeatmap) {
+        drops.selectAll('.drop').remove();
+    } else {
+        drops.selectAll('.heatmap-rect').remove();
+    }
+    
+    drops.call(renderComponent(config, xScale, breakpointLabel));
 
     drops
         .append('rect') // The rect allow us to size the drops g element
@@ -47,8 +70,13 @@ export default (config, xScale) => selection => {
         .attr('height', config.line.height)
         .attr('fill', 'transparent');
 
-    if (metaballs) {
+    // Only apply metaballs filter to dots, not heatmap
+    // Also remove filter when switching to heatmap
+    if (metaballs && !useHeatmap) {
         drops.style('filter', 'url(#metaballs)');
+    } else if (useHeatmap) {
+        // Remove metaballs filter when using heatmap
+        drops.style('filter', null);
     }
 
     g
@@ -64,7 +92,34 @@ export default (config, xScale) => selection => {
         .on('click', labelOnClick);
 
     lines.selectAll('.line-label').text(labelText);
-    lines.selectAll('.drops').call(drop(config, xScale));
+    lines.selectAll('.drops')
+        .each(function(d, i) {
+            // Get parent row data and store row index in datum for heatmap to access
+            if (this && this.parentNode) {
+                const parentData = d3.select(this.parentNode).datum();
+                d3.select(this).datum({ ...parentData, _rowIndex: i });
+            }
+        });
+    
+    // Clean up elements from the opposite component before rendering
+    // This ensures smooth transitions when switching between heatmap and drops
+    const dropsSelection = lines.selectAll('.drops');
+    
+    dropsSelection.classed('heatmap-container', useHeatmap);
+    
+    if (useHeatmap) {
+        dropsSelection.selectAll('.drop').remove();
+        if (metaballs) {
+            dropsSelection.style('filter', null);
+        }
+    } else {
+        dropsSelection.selectAll('.heatmap-rect').remove();
+        if (metaballs) {
+            dropsSelection.style('filter', 'url(#metaballs)');
+        }
+    }
+    
+    dropsSelection.call(renderComponent(config, xScale, breakpointLabel));
 
     if (indicatorEnabled) {
         g

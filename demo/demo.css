@@ -60,6 +60,15 @@ p {
     cursor: pointer;
 }
 
+.heatmap-rect {
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.heatmap-rect:hover {
+    opacity: 0.8;
+}
+
 footer p {
     text-align: center;
     color: #888;
@@ -125,4 +134,21 @@ footer p {
 .tooltip p {
     font-size: .9rem;
     color: #777;
+}
+
+
+.tooltip .heatmap-bucket {
+    text-align: center;
+}
+
+.tooltip .heatmap-bucket h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    color: #222;
+}
+
+.tooltip .heatmap-bucket .date {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 0.5rem;
 }
